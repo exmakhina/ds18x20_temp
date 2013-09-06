@@ -19,7 +19,7 @@ CFLAGS= -g -Os -Wall -Wstrict-prototypes -Wa,-ahlms=$(PROG).lst -mmcu=$(CPU) -DF
 CFLAGS += -gdwarf-2 -std=gnu99 -Wextra -pedantic -ffunction-sections -fdata-sections -fno-inline-small-functions -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 CFLAGS += -MD -MP -MT $(*F).o -MF
 
-LFLAGS= -Wl,-Map=$(PROG).map,--cref -mmcu=$(CPU) -lm
+LFLAGS= -Wl,-Map=$(PROG).map,--cref -mmcu=$(CPU)
 # use LFLAGS below if you need to printf floating point numbers
 #LFLAGS= -Wl,-u,vfprintf,-Map=$(PROG).map,--cref -mmcu=$(CPU) -lprintf_min -lm
 INCL = -I. -I../../lib/libarduino
