@@ -140,6 +140,7 @@ int main( void )
 	uint8_t error;
 	
 	serial_init();
+	fdevopen(serial_putchar, serial_getchar);
 	
 #ifndef OW_ONE_BUS
 	ow_set_bus(&PIND,&PORTD,&DDRD,PD6);
