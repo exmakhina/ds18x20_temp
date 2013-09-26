@@ -48,7 +48,7 @@
 
 #include <libarduino.h>
 
-#define MAXSENSORS 5
+#define MAXSENSORS 10
 
 
 uint8_t gSensorIDs[MAXSENSORS][OW_ROMCODE_SIZE];
@@ -149,20 +149,11 @@ int main( void )
 	sei();
 	
 	printf(  "DS18X20 1-Wire-Reader Demo by Martin Thomas\r\n");
-	printf(            "-------------------------------------------" );
+	printf(  "-------------------------------------------" );
 	
 	nSensors = search_sensors();
 	printf("%d",(int)nSensors );
 	printf( " DS18X20 Sensor(s) available:\r\n");
-	
-#if DS18X20_VERBOSE
-	for (i = 0; i < nSensors; i++ ) {
-		printf("# in Bus :");
-		printf("%d",(int)i + 1);
-		printf(" : ");
-		//DS18X20_show_id_uart( &gSensorIDs[i][0], OW_ROMCODE_SIZE );
-	}
-#endif
 		
 	for ( i = 0; i < nSensors; i++ ) {
 		printf( "Sensor# " );
@@ -211,40 +202,11 @@ int main( void )
 			error++;
 		}
 
-		printf(  "Convert_T and Read Sensor by Sensor (reverse order)\r\n"); 
-		for ( i = nSensors; i > 0; i-- ) {
-			if ( DS18X20_start_meas( DS18X20_POWER_PARASITE, 
-				&gSensorIDs[i-1][0] ) == DS18X20_OK ) {
-				_delay_ms( DS18B20_TCONV_12BIT );
-				printf( "Sensor# " );
-				printf("%d",(int) i );
-				printf(" = ");
-				if ( DS18X20_read_decicelsius( &gSensorIDs[i-1][0], &decicelsius) 
-				     == DS18X20_OK ) {
-					printf( "%d", decicelsius );
-				} else {
-					printf( "CRC Error (lost connection?)" );
-					error++;
-				}
-				printf( "\r\n");
-			}
-			else {
-				printf( "Start meas. failed (short circuit?)" );
-				error++;
-			}
-		}
-		
-		printf(  "Convert_T for all Sensors and Read Sensor by Sensor\r\n");
-		if ( DS18X20_start_meas( DS18X20_POWER_PARASITE, NULL ) 
-			== DS18X20_OK) {
+		if ( DS18X20_start_meas( DS18X20_POWER_PARASITE, NULL ) == DS18X20_OK) {
 			_delay_ms( DS18B20_TCONV_12BIT );
 			for ( i = 0; i < nSensors; i++ ) {
-				printf( "Sensor# " );
-				printf("%d",(int)i + 1 );
-				printf(" = ");
-				if ( DS18X20_read_decicelsius( &gSensorIDs[i][0], &decicelsius )
-				     == DS18X20_OK ) {
-					printf( "%d", decicelsius );
+				if ( DS18X20_read_decicelsius( &gSensorIDs[i][0], &decicelsius ) == DS18X20_OK ) {
+					printf( "Sensor #%d = %d.%d", (int)i + 1, decicelsius/10, decicelsius%10);
 				}
 				else {
 					printf( "CRC Error (lost connection?)" );
@@ -252,43 +214,10 @@ int main( void )
 				}
 				printf( "\r\n");
 			}
-#if DS18X20_MAX_RESOLUTION
-			int32_t temp_eminus4;
-			for ( i = 0; i < nSensors; i++ ) {
-				printf( "Sensor# " );
-				printf("%d",i+1 );
-				printf(" = ");
-				if ( DS18X20_read_maxres( &gSensorIDs[i][0], &temp_eminus4 )
-				     == DS18X20_OK ) {
-					printf( "%d", temp_eminus4 );
-				}
-				else {
-					printf( "CRC Error (lost connection?)" );
-					error++;
-				}
-				printf( "\r\n");
-			}
-#endif
 		}
 		else {
-			printf( "Start meas. failed (short circuit?)" );
+			printf( "Start meas. failed (short circuit?)\r\n" );
 			error++;
-		}
-
-
-#if DS18X20_VERBOSE
-		// all devices:
-		printf(  "Verbose output\r\n"); 
-		DS18X20_start_meas( DS18X20_POWER_PARASITE, NULL );
-		_delay_ms( DS18B20_TCONV_12BIT );
-#endif
-
-		if ( error ) {
-			printf( "*** problems - rescanning bus ..." );
-			nSensors = search_sensors();
-			printf("%d",(int) nSensors );
-			printf( " DS18X20 Sensor(s) available\r\n");
-			error = 0;
 		}
 
 		_delay_ms(3000); 
